@@ -1,5 +1,7 @@
 *.tfstate
 *.tfstate.*
+.terraform/
 terraform.tfvars
 crash.log
 *.swp
+.devcontainer/
