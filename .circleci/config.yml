@@ -71,13 +71,13 @@ workflows:
   build_and_deploy:
     jobs:
       - initialize:
-          context: CircleCI_IAM_Secrets
+          context: AWS_IAM_Keys
       - validate:
-          context: CircleCI_IAM_Secrets
+          context: AWS_IAM_Keys
           requires:
             - initialize
       - plan:
-          context: CircleCI_IAM_Secrets
+          context: AWS_IAM_Keys
           requires:
             - validate
       - approve_deploy:
@@ -89,6 +89,6 @@ workflows:
               only:
                 - master
       - deploy:
-          context: CircleCI_IAM_Secrets
+          context: AWS_IAM_Keys
           requires:
             - approve_deploy
