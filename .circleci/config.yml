@@ -1,0 +1,94 @@
+# Environments:
+#   - AWS_ACCESS_KEY_ID      Access key ID for terraform user
+#   - AWS_SECRET_ACCESS_KEY  Secret access key for terraform user
+#   - AWS_DEFAULT_REGION     Default region for AWS account
+
+version: 2.1
+
+executors:
+  terraform:
+    docker:
+      - image: hashicorp/terraform:light
+
+orbs:
+  aws-cli: circleci/aws-cli@1.0.0
+
+jobs:
+  initialize:
+    executor: terraform
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "main.tf" }}
+          - v1-dependencies-
+      - run: terraform init
+      - save_cache:
+          paths:
+            - .terraform
+          key: v1-dependencies-{{ checksum "main.tf" }}
+
+  validate:
+    executor: terraform
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "main.tf" }}
+          - v1-dependencies-
+      - run:
+          name: terraform validate
+          command: |
+            terraform validate -var "aws_access_key=${AWS_ACCESS_KEY_ID}" -var "aws_secret_key=${AWS_SECRET_ACCESS_KEY}"
+
+  plan:
+    executor: terraform
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "main.tf" }}
+          - v1-dependencies-
+      - run:
+          name: terraform plan
+          command: |
+            terraform plan -var "aws_access_key=${AWS_ACCESS_KEY_ID}" -var "aws_secret_key=${AWS_SECRET_ACCESS_KEY}"
+
+  deploy:
+    executor: terraform
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "main.tf" }}
+          - v1-dependencies-
+      - run:
+          name: terraform apply
+          command: |
+            terraform apply -auto-approve -var "aws_access_key=${AWS_ACCESS_KEY_ID}" -var "aws_secret_key=${AWS_SECRET_ACCESS_KEY}"
+
+workflows:
+  build_and_deploy:
+    jobs:
+      - initialize:
+          context: AWS_IAM_Keys
+      - validate:
+          context: AWS_IAM_Keys
+          requires:
+            - initialize
+      - plan:
+          context: AWS_IAM_Keys
+          requires:
+            - validate
+      - approve_deploy:
+          type: approval
+          requires:
+            - validate
+          filters:
+            branches:
+              only:
+                - master
+      - deploy:
+          context: AWS_IAM_Keys
+          requires:
+            - approve_deploy
