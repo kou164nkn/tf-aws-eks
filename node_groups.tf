@@ -66,6 +66,7 @@ EOF
 resource "aws_eks_node_group" "main" {
   cluster_name    = aws_eks_cluster.main.name
   node_group_name = "eks-deploy-private"
+  version         = var.eks_worker_version
   node_role_arn   = aws_iam_role.eks_nodes.arn
   subnet_ids      = aws_subnet.private-subnet[*].id
   ami_type        = var.ami_type
@@ -89,6 +90,7 @@ resource "aws_eks_node_group" "main" {
 }
 
 # Nodes in public subnet
+/*
 resource "aws_eks_node_group" "public" {
   cluster_name    = aws_eks_cluster.main.name
   node_group_name = "eks-deploy-public"
@@ -113,4 +115,5 @@ resource "aws_eks_node_group" "public" {
     aws_iam_role_policy_attachment.ec2_read_only,
   ]
 }
+*/
 # =========================================================

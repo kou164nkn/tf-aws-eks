@@ -32,6 +32,7 @@ resource "aws_iam_role_policy_attachment" "aws_eks_service_policy" {
 # == Cluster ==============================================
 resource "aws_eks_cluster" "main" {
   name     = "eks-deploy_cluster"
+  version  = var.eks_cluster_version
   role_arn = aws_iam_role.eks_cluster.arn
   vpc_config {
     security_group_ids = [aws_security_group.eks_cluster.id, aws_security_group.eks_nodes.id]

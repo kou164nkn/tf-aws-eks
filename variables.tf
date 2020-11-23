@@ -9,6 +9,14 @@ variable "availability_zone" {
   default = ["ap-northeast-1a", "ap-northeast-1c", "ap-northeast-1d"]
 }
 
+variable "eks_cluster_version" {
+  default = "1.18"
+}
+
+variable "eks_worker_version" {
+  default = "1.18"
+}
+
 # == WorkerNode Instance Parameters =======================
 variable "ami_type" {
   default = "AL2_x86_64"
