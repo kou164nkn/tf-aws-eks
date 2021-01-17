@@ -83,7 +83,7 @@ workflows:
       - approve_deploy:
           type: approval
           requires:
-            - validate
+            - plan
           filters:
             branches:
               only:
